@@ -139,7 +139,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case 'remember': {
-        const { key, value, tags, ttl_days, namespace } = args as RememberArgs;
+        const { key, value, tags, ttl_days, namespace } = args as unknown as RememberArgs;
         const ns = namespace || DEFAULT_NAMESPACE;
         
         const response = await fetch(`${API_BASE}/api/namespace/${ns}/remember`, {
@@ -152,7 +152,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data: any = await response.json();
         return {
           content: [
             {
@@ -164,7 +164,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'recall': {
-        const { query, limit, namespace } = args as RecallArgs;
+        const { query, limit, namespace } = args as unknown as RecallArgs;
         const ns = namespace || DEFAULT_NAMESPACE;
 
         const response = await fetch(`${API_BASE}/api/namespace/${ns}/recall`, {
@@ -177,7 +177,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data: any = await response.json();
         
         if (data.count === 0) {
           return {
@@ -207,7 +207,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case 'forget': {
-        const { key, tags, namespace } = args as ForgetArgs;
+        const { key, tags, namespace } = args as unknown as ForgetArgs;
         const ns = namespace || DEFAULT_NAMESPACE;
 
         if (!key && !tags) {
@@ -224,7 +224,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           throw new Error(`API error: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const data: any = await response.json();
         return {
           content: [
             {
