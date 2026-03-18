@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "env": {
+    "CDP_API_KEY_ID": "@cdp_api_key_id",
+    "CDP_API_KEY_SECRET": "@cdp_api_key_secret",
+    "WALLET_ADDRESS": "@wallet_address",
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "NETWORK": "eip155:8453"
+  },
+  "build": {
+    "env": {
+      "NODE_VERSION": "18"
+    }
+  }
+}
