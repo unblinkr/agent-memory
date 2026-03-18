@@ -1,18 +1,19 @@
-// POST /api/remember - Store a memory (x402-gated)
-import { supabase } from '../../lib/supabase.js';
-import { generateEmbedding } from '../../lib/embeddings.js';
-import { createExpressHandler } from '../../lib/express-adapter.js';
+// POST /api/namespace/{id}/remember - Store a memory (x402-gated)
+import { supabase } from '../../../../lib/supabase.js';
+import { generateEmbedding } from '../../../../lib/embeddings.js';
+import { createExpressHandler } from '../../../../lib/express-adapter.js';
 
 async function rememberHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { namespace, key, value, tags = [], ttl_days = 30 } = req.body;
+  const { id: namespace } = req.query;
+  const { key, value, tags = [], ttl_days = 30 } = req.body;
 
-  if (!namespace || !key || !value) {
+  if (!key || !value) {
     return res.status(400).json({
-      error: 'Missing required fields: namespace, key, value'
+      error: 'Missing required fields: key, value'
     });
   }
 
@@ -45,6 +46,7 @@ async function rememberHandler(req, res) {
 
     res.status(200).json({
       id: data.id,
+      namespace,
       stored_at: data.created_at,
       expires_at: data.expires_at,
     });

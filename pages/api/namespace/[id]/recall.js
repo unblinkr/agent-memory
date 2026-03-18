@@ -1,18 +1,19 @@
-// POST /api/recall - Semantic search memories (x402-gated)
-import { supabase } from '../../lib/supabase.js';
-import { generateEmbedding } from '../../lib/embeddings.js';
-import { createExpressHandler } from '../../lib/express-adapter.js';
+// POST /api/namespace/{id}/recall - Semantic search memories (x402-gated)
+import { supabase } from '../../../../lib/supabase.js';
+import { generateEmbedding } from '../../../../lib/embeddings.js';
+import { createExpressHandler } from '../../../../lib/express-adapter.js';
 
 async function recallHandler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { namespace, query, limit = 10 } = req.body;
+  const { id: namespace } = req.query;
+  const { query, limit = 10 } = req.body;
 
-  if (!namespace || !query) {
+  if (!query) {
     return res.status(400).json({
-      error: 'Missing required fields: namespace, query'
+      error: 'Missing required field: query'
     });
   }
 
@@ -41,7 +42,11 @@ async function recallHandler(req, res) {
         stored_at: row.created_at,
       }));
 
-    res.status(200).json({ results, count: results.length });
+    res.status(200).json({ 
+      namespace,
+      results, 
+      count: results.length 
+    });
   } catch (error) {
     console.error('Error recalling memories:', error);
     res.status(500).json({ error: 'Failed to recall memories' });

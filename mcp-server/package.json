@@ -1,0 +1,41 @@
+{
+  "name": "@namespace-ai/mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for Namespace — persistent memory for AI agents",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "namespace-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc && node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "ai",
+    "memory",
+    "context",
+    "namespace",
+    "claude"
+  ],
+  "author": "OpenClaw Builder",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unblinkr/agent-memory.git",
+    "directory": "mcp-server"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

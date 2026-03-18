@@ -1,17 +1,18 @@
-// DELETE /api/forget - Delete memories (x402-gated)
-import { supabase } from '../../lib/supabase.js';
-import { createExpressHandler } from '../../lib/express-adapter.js';
+// DELETE /api/namespace/{id}/forget - Delete memories (x402-gated)
+import { supabase } from '../../../../lib/supabase.js';
+import { createExpressHandler } from '../../../../lib/express-adapter.js';
 
 async function forgetHandler(req, res) {
   if (req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { namespace, key, tags } = req.body;
+  const { id: namespace } = req.query;
+  const { key, tags } = req.body;
 
-  if (!namespace || (!key && !tags)) {
+  if (!key && !tags) {
     return res.status(400).json({
-      error: 'Missing required fields: namespace and (key OR tags)'
+      error: 'Missing required field: key OR tags'
     });
   }
 
@@ -29,6 +30,7 @@ async function forgetHandler(req, res) {
     if (error) throw error;
 
     res.status(200).json({
+      namespace,
       deleted_count: count || 0,
       timestamp: new Date().toISOString(),
     });

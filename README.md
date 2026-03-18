@@ -1,112 +1,217 @@
-# 🧠 Agent Memory API
+# 🧠 Namespace
 
-Pay-per-use semantic memory for AI agents. Store, recall, and forget memories using natural language queries.
+**Stop losing context. Your AI agent deserves permanent memory.**
 
-**Live at:** [agent-memory.vercel.app](https://agent-memory.vercel.app) *(after deployment)*
+Namespace solves "context leak"—the moment your AI session ends and forgets everything. User preferences? Gone. Previous decisions? Vanished. Work in progress? Lost forever.
+
+Not anymore.
+
+**Live at:** [agent-memory.vercel.app](https://agent-memory.vercel.app)
+
+---
+
+## The Problem: Context Leak
+
+Every time your AI agent's session ends—timeout, restart, new chat—it forgets:
+- User preferences & settings
+- API keys & credentials
+- Previous conversations & decisions
+- Work in progress
+- Everything you taught it
+
+**This is context leak.** And it's everywhere.
+
+---
+
+## The Solution: Namespace
+
+Namespace is a persistent identity layer for AI agents. Each agent gets a "namespace"—a pocket of memory that survives:
+
+✅ Session timeouts  
+✅ Chat restarts  
+✅ Application crashes  
+✅ Model switches  
+✅ Anything  
+
+Your agent writes to it. Reads from it. **Never starts from zero again.**
+
+---
 
 ## Features
 
-- 🔍 **Semantic search** — Query memories in natural language
-- 💰 **Pay-per-use** — $0.001-$0.005 per request via x402 protocol
-- ⚡ **Gasless payments** — USDC on Base, no gas fees
-- 🔐 **Namespaced** — Isolated memory spaces per agent
-- ⏰ **TTL support** — Auto-expire old memories
-- 🏷️ **Tags** — Organize and filter memories
+🔍 **Semantic search** — Query memories in natural language  
+💰 **Pay-per-use** — From free tier to $49/mo pro plans  
+⚡ **Gasless payments** — USDC on Base via x402 protocol  
+🔐 **Namespaced** — Isolated memory per agent  
+⏰ **TTL support** — Auto-expire old memories  
+🏷️ **Tags** — Organize and filter memories  
+🤖 **MCP compatible** — Works with Claude Desktop out of the box  
+
+---
 
 ## Quick Start
 
-### 1. Store a Memory
+### Option 1: MCP Server (Claude Desktop)
+
+Install the MCP server:
 
 ```bash
-curl -X POST https://agent-memory.vercel.app/api/remember \
+npm install -g @namespace-ai/mcp-server
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "namespace": {
+      "command": "namespace-mcp",
+      "env": {
+        "NAMESPACE_ID": "your-unique-namespace-id"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop. You now have three new tools:
+- `remember` — Store a memory
+- `recall` — Search memories semantically  
+- `forget` — Delete memories
+
+### Option 2: Direct API
+
+```bash
+# Store a memory
+curl -X POST https://agent-memory.vercel.app/api/namespace/my-agent/remember \
   -H "Content-Type: application/json" \
   -d '{
-    "namespace": "my-agent-id",
-    "key": "user-preference",
+    "key": "user-theme",
     "value": {"theme": "dark", "language": "en"},
-    "tags": ["preferences", "ui"],
+    "tags": ["preferences"],
     "ttl_days": 30
   }'
+
+# Recall memories (semantic search)
+curl -X POST https://agent-memory.vercel.app/api/namespace/my-agent/recall \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "What are the user interface preferences?",
+    "limit": 10
+  }'
+
+# Forget a memory
+curl -X DELETE https://agent-memory.vercel.app/api/namespace/my-agent/forget \
+  -H "Content-Type: application/json" \
+  -d '{"key": "user-theme"}'
+```
+
+---
+
+## Pricing
+
+| Plan | Price | Includes | Payment |
+|------|-------|----------|---------|
+| **Free** | $0 | 1,000 calls/mo | Wallet-gated |
+| **Pay-as-you-go** | x402 | $0.001 read / $0.005 write | USDC on Base |
+| **Dev** | $12/mo | 50K memories | Stripe or crypto |
+| **Pro** | $49/mo | 500K memories + graph memory | Stripe or crypto |
+| **Agent** | $8/mo | 100K calls/mo flat rate | USDC only |
+
+---
+
+## API Reference
+
+### `POST /api/namespace/{id}/remember`
+
+Store a memory with semantic embedding.
+
+**Request:**
+```json
+{
+  "key": "string",           // Unique key within namespace
+  "value": any,              // Any JSON value
+  "tags": ["string"],        // Optional tags
+  "ttl_days": 30             // Days until auto-delete
+}
 ```
 
 **Response:**
 ```json
 {
   "id": "uuid",
-  "stored_at": "2026-03-18T13:00:00Z",
-  "expires_at": "2026-04-17T13:00:00Z"
+  "namespace": "my-agent",
+  "stored_at": "timestamp",
+  "expires_at": "timestamp"
 }
 ```
 
-### 2. Recall Memories (Semantic Search)
+---
 
-```bash
-curl -X POST https://agent-memory.vercel.app/api/recall \
-  -H "Content-Type: application/json" \
-  -d '{
-    "namespace": "my-agent-id",
-    "query": "What are the user interface preferences?",
-    "limit": 10
-  }'
+### `POST /api/namespace/{id}/recall`
+
+Semantic search memories by natural language query.
+
+**Request:**
+```json
+{
+  "query": "string",         // Natural language query
+  "limit": 10                // Max results (default: 10)
+}
 ```
 
 **Response:**
 ```json
 {
+  "namespace": "my-agent",
   "results": [
     {
-      "key": "user-preference",
-      "value": {"theme": "dark", "language": "en"},
-      "tags": ["preferences", "ui"],
-      "score": 0.92,
-      "stored_at": "2026-03-18T13:00:00Z"
+      "key": "string",
+      "value": any,
+      "tags": ["string"],
+      "score": 0.92,          // Similarity score (0-1)
+      "stored_at": "timestamp"
     }
   ],
   "count": 1
 }
 ```
 
-### 3. Forget Memories
+---
 
-```bash
-curl -X DELETE https://agent-memory.vercel.app/api/forget \
-  -H "Content-Type: application/json" \
-  -d '{
-    "namespace": "my-agent-id",
-    "key": "user-preference"
-  }'
+### `DELETE /api/namespace/{id}/forget`
+
+Delete memories by key or tags.
+
+**Request:**
+```json
+{
+  "key": "string",           // Delete specific key (OR)
+  "tags": ["string"]         // Delete by tags (OR)
+}
 ```
 
-**Or delete by tags:**
-```bash
-curl -X DELETE https://agent-memory.vercel.app/api/forget \
-  -H "Content-Type: application/json" \
-  -d '{
-    "namespace": "my-agent-id",
-    "tags": ["preferences"]
-  }'
+**Response:**
+```json
+{
+  "namespace": "my-agent",
+  "deleted_count": 1,
+  "timestamp": "timestamp"
+}
 ```
 
-## Pricing
+---
 
-| Endpoint | Price | Description |
-|----------|-------|-------------|
-| `POST /api/remember` | $0.005 | Store a memory |
-| `POST /api/recall` | $0.001 | Semantic search |
-| `DELETE /api/forget` | $0.001 | Delete memories |
+## Use Cases
 
-Payments via USDC on Base (gasless signatures with x402 protocol).
+- 👤 **User Preferences** — Theme, language, settings
+- 🔑 **API Keys** — Store securely, recall when needed
+- 📝 **Work in Progress** — Resume tasks across sessions
+- 🎯 **Decision History** — Remember why you decided that
+- 🔗 **Cross-Session Context** — Build long-term projects
+- 🤖 **Agent Coordination** — Share memory between agents
 
-## Payment Flow
-
-1. First request returns `402 Payment Required` with payment details
-2. Your agent signs a gasless USDC transfer on Base
-3. Include signature in `X-Payment` header on retry
-4. Get your data instantly
-
-Compatible with:
-- Coinbase AgentKit
-- Any x402-compatible wallet
+---
 
 ## Tech Stack
 
@@ -115,14 +220,17 @@ Compatible with:
 - **Database:** Supabase (pgvector for embeddings)
 - **Payments:** x402 protocol (Base mainnet)
 - **Embeddings:** OpenAI `text-embedding-3-small`
+- **MCP:** Model Context Protocol server
 - **Deployment:** Vercel
+
+---
 
 ## Local Development
 
 ### Prerequisites
 
 - Node.js 18+
-- Supabase project
+- Supabase project with pgvector
 - OpenAI API key
 - Coinbase CDP credentials ([portal.cdp.coinbase.com](https://portal.cdp.coinbase.com))
 - Wallet address (Base network)
@@ -137,8 +245,8 @@ Compatible with:
    ```
 
 2. **Set up Supabase:**
-   - Create a new project at [supabase.com](https://supabase.com)
-   - Run the SQL from `supabase-schema.sql` in the SQL Editor
+   - Create a project at [supabase.com](https://supabase.com)
+   - Run `supabase-schema.sql` in the SQL Editor
    - Enable pgvector extension
 
 3. **Configure environment:**
@@ -154,148 +262,53 @@ Compatible with:
 
    Visit [http://localhost:3000](http://localhost:3000)
 
-### Environment Variables
-
-```env
-# Coinbase CDP
-CDP_API_KEY_ID=your_key_id
-CDP_API_KEY_SECRET=your_key_secret
-WALLET_ADDRESS=0xYourAddress
-
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-
-# OpenAI
-OPENAI_API_KEY=sk-your-key
-
-# Network (default: Base mainnet)
-NETWORK=eip155:8453
-```
-
-## Deployment (Vercel)
-
-1. **Create GitHub repo:**
+5. **Build MCP server:**
    ```bash
-   gh repo create unblinkr/agent-memory --public
-   git remote add origin https://github.com/unblinkr/agent-memory.git
-   git add .
-   git commit -m "Initial commit"
-   git push -u origin main
+   cd mcp-server
+   npm install
+   npm run build
+   npm start
    ```
 
-2. **Deploy to Vercel:**
-   - Visit [vercel.com/new](https://vercel.com/new)
-   - Import `unblinkr/agent-memory`
-   - Add environment variables from `.env`
-   - Deploy
+---
 
-3. **Verify:**
-   ```bash
-   curl https://agent-memory.vercel.app/api/health
-   ```
+## Deployment
 
-## API Reference
+See [DEPLOY.md](./DEPLOY.md) for detailed deployment instructions.
 
-### `GET /api/health`
+**Quick version:**
 
-Health check (free).
+1. Push to GitHub: `github.com/unblinkr/agent-memory`
+2. Connect to Vercel
+3. Add environment variables
+4. Deploy
+5. Publish MCP server: `cd mcp-server && npm publish`
 
-**Response:**
-```json
-{
-  "status": "ok",
-  "version": "0.1.0",
-  "timestamp": "2026-03-18T13:00:00Z"
-}
-```
+---
 
-### `POST /api/remember` 💰
+## Contributing
 
-Store a memory with semantic embedding.
+We're coining "context leak" and owning the solution. Help us spread the word:
 
-**Request:**
-```json
-{
-  "namespace": "string",     // Agent ID or namespace
-  "key": "string",           // Unique key within namespace
-  "value": any,              // Any JSON value
-  "tags": ["string"],        // Optional tags
-  "ttl_days": 30             // Days until auto-delete
-}
-```
+- Star this repo ⭐
+- Share on X/Twitter
+- Submit to MCP directory
+- Build integrations
 
-**Response:**
-```json
-{
-  "id": "uuid",
-  "stored_at": "timestamp",
-  "expires_at": "timestamp"
-}
-```
-
-### `POST /api/recall` 💰
-
-Semantic search memories by natural language query.
-
-**Request:**
-```json
-{
-  "namespace": "string",     // Agent ID or namespace
-  "query": "string",         // Natural language query
-  "limit": 10                // Max results (default: 10)
-}
-```
-
-**Response:**
-```json
-{
-  "results": [
-    {
-      "key": "string",
-      "value": any,
-      "tags": ["string"],
-      "score": 0.92,          // Similarity score (0-1)
-      "stored_at": "timestamp"
-    }
-  ],
-  "count": 1
-}
-```
-
-### `DELETE /api/forget` 💰
-
-Delete memories by key or tags.
-
-**Request:**
-```json
-{
-  "namespace": "string",     // Agent ID or namespace
-  "key": "string",           // Delete specific key (OR)
-  "tags": ["string"]         // Delete by tags (OR)
-}
-```
-
-**Response:**
-```json
-{
-  "deleted_count": 1,
-  "timestamp": "timestamp"
-}
-```
-
-## Security
-
-- Never commit `.env` files
-- Use service role key for Supabase (not anon key)
-- Namespace isolation prevents cross-agent access
-- TTL auto-expires sensitive data
+---
 
 ## License
 
 MIT
 
+---
+
 ## Support
 
 - [GitHub Issues](https://github.com/unblinkr/agent-memory/issues)
 - Built with [OpenClaw](https://openclaw.ai)
+- Powered by [Model Context Protocol](https://modelcontextprotocol.io)
+
+---
+
+**Stop losing context. Start using Namespace.**
