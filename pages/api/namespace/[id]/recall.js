@@ -1,23 +1,11 @@
 // Pure Next.js API route - Semantic search memories
 import { createClient } from '@supabase/supabase-js';
-import OpenAI from 'openai';
+import { generateEmbedding } from '../../../../lib/embeddings.js';
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-async function generateEmbedding(text) {
-  const response = await openai.embeddings.create({
-    model: 'text-embedding-3-small',
-    input: text,
-  });
-  return response.data[0].embedding;
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -34,7 +22,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Generate embedding for query
+    // Generate embedding for query using NVIDIA
     const queryEmbedding = await generateEmbedding(query);
 
     // Perform semantic search using pgvector
