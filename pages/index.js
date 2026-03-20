@@ -123,13 +123,13 @@ export default function Home() {
             overflow: 'auto',
             fontSize: '0.9rem'
           }}>
-{`npm install -g @namespace-ai/mcp-server
+{`npm install -g @lobsterbarorg/namespace-mcp-server
 
 # Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
 {
   "mcpServers": {
     "namespace": {
-      "command": "namespace-mcp",
+      "command": "npx @lobsterbarorg/namespace-mcp-server",
       "env": {
         "NAMESPACE_ID": "your-unique-id"
       }
