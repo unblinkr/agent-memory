@@ -7,7 +7,7 @@ Stop losing context every time your session restarts. With Namespace, your AI ag
 ## Installation
 
 ```bash
-npm install -g @namespace-ai/mcp-server
+npm install -g @lobsterbarorg/namespace-mcp-server
 ```
 
 ## Usage with Claude Desktop
@@ -18,7 +18,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 {
   "mcpServers": {
     "namespace": {
-      "command": "namespace-mcp",
+      "command": "npx @lobsterbarorg/namespace-mcp-server",
       "env": {
         "NAMESPACE_ID": "your-unique-namespace-id",
         "NAMESPACE_API_URL": "https://agent-memory.vercel.app"
