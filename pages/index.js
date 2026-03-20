@@ -1,4 +1,108 @@
-// Namespace Landing Page
+import { useState, useEffect } from 'react';
+import { useAccount, useConnect, useDisconnect, useReadContract } from 'wagmi';
+import { formatUnits } from 'viem';
+
+const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // USDC on Base
+const USDC_ABI = [
+  {
+    constant: true,
+    inputs: [{ name: '_owner', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', type: 'uint256' }],
+    type: 'function'
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
+    type: 'function'
+  }
+];
+
+function WalletButton() {
+  const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+  const [credits, setCredits] = useState(null);
+  
+  const { data: usdcBalance } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address] : undefined,
+    enabled: !!address
+  });
+
+  useEffect(() => {
+    if (address) {
+      fetch(`/api/credits/${address}`)
+        .then(res => res.json())
+        .then(data => setCredits(data.credits))
+        .catch(err => console.error('Credits fetch error:', err));
+    }
+  }, [address]);
+
+  if (!isConnected) {
+    return (
+      <button
+        onClick={() => connect({ connector: connectors[0] })}
+        style={{
+          background: 'linear-gradient(90deg, #667eea, #764ba2)',
+          color: 'white',
+          border: 'none',
+          padding: '0.75rem 1.5rem',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: '600',
+          fontSize: '1rem'
+        }}
+      >
+        Connect Wallet
+      </button>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+      <div style={{
+        background: 'rgba(102, 126, 234, 0.1)',
+        border: '1px solid #667eea',
+        borderRadius: '8px',
+        padding: '0.75rem 1rem',
+        fontSize: '0.9rem'
+      }}>
+        <div style={{ marginBottom: '0.25rem', color: '#666' }}>
+          {address?.slice(0, 6)}...{address?.slice(-4)}
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
+          <span>
+            💰 {usdcBalance ? parseFloat(formatUnits(usdcBalance, 6)).toFixed(2) : '0.00'} USDC
+          </span>
+          <span>
+            🎫 {credits ?? '...'} credits
+          </span>
+        </div>
+      </div>
+      <button
+        onClick={() => disconnect()}
+        style={{
+          background: 'transparent',
+          color: '#666',
+          border: '1px solid #ddd',
+          padding: '0.75rem 1rem',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontWeight: '600',
+          fontSize: '0.9rem'
+        }}
+      >
+        Disconnect
+      </button>
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', lineHeight: 1.6 }}>
@@ -7,8 +111,17 @@ export default function Home() {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         padding: '4rem 2rem',
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative'
       }}>
+        <div style={{
+          position: 'absolute',
+          top: '2rem',
+          right: '2rem'
+        }}>
+          <WalletButton />
+        </div>
+        
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
           <h1 style={{ 
             fontSize: '3rem', 
@@ -148,15 +261,21 @@ export default function Home() {
             fontSize: '0.9rem'
           }}>
 {`# Store a memory
-curl -X POST https://agent-memory.vercel.app/api/namespace/my-agent/remember \\
+curl -X POST https://agent-memory-dun.vercel.app/api/namespace/my-agent/remember \\
   -H "Content-Type: application/json" \\
   -d '{"key": "api-key", "value": "sk-proj-123...", "ttl_days": 30}'
 
 # Recall a memory
-curl -X POST https://agent-memory.vercel.app/api/namespace/my-agent/recall \\
+curl -X POST https://agent-memory-dun.vercel.app/api/namespace/my-agent/recall \\
   -H "Content-Type: application/json" \\
   -d '{"query": "What is my API key?"}'`}
           </pre>
+
+          <h3 style={{ marginTop: '2rem' }}>Option 3: Connect Wallet & Test Live</h3>
+          <p style={{ color: '#666', marginBottom: '1rem' }}>
+            Connect your wallet above to pre-fund your namespace with USDC on Base.
+            Then use the quickstart commands with your wallet address to deduct credits automatically.
+          </p>
         </section>
 
         {/* Pricing */}
