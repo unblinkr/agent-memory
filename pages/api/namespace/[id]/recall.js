@@ -22,8 +22,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Generate embedding for query using NVIDIA
-    const queryEmbedding = await generateEmbedding(query);
+    // Generate embedding for query using NVIDIA (use 'query' type for search)
+    const queryEmbedding = await generateEmbedding(query, 'query');
 
     // Perform semantic search using pgvector
     const { data, error } = await supabase.rpc('search_memories', {
