@@ -1,8 +1,12 @@
-// DELETE /api/namespace/{id}/forget - Delete memories (x402-gated)
-import { supabase } from '../../../../lib/supabase.js';
-import { createExpressHandler } from '../../../../lib/express-adapter.js';
+// Pure Next.js API route - Delete memories
+import { createClient } from '@supabase/supabase-js';
 
-async function forgetHandler(req, res) {
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+export default async function handler(req, res) {
   if (req.method !== 'DELETE') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -25,19 +29,23 @@ async function forgetHandler(req, res) {
       query = query.overlaps('tags', tags);
     }
 
-    const { data, error, count } = await query;
+    const { error, count } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
-    res.status(200).json({
+    return res.status(200).json({
       namespace,
       deleted_count: count || 0,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error forgetting memories:', error);
-    res.status(500).json({ error: 'Failed to forget memories' });
+    return res.status(500).json({ 
+      error: 'Failed to forget memories',
+      details: error.message 
+    });
   }
 }
-
-export default createExpressHandler(forgetHandler);

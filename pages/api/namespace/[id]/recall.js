@@ -1,9 +1,25 @@
-// POST /api/namespace/{id}/recall - Semantic search memories (x402-gated)
-import { supabase } from '../../../../lib/supabase.js';
-import { generateEmbedding } from '../../../../lib/embeddings.js';
-import { createExpressHandler } from '../../../../lib/express-adapter.js';
+// Pure Next.js API route - Semantic search memories
+import { createClient } from '@supabase/supabase-js';
+import OpenAI from 'openai';
 
-async function recallHandler(req, res) {
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+async function generateEmbedding(text) {
+  const response = await openai.embeddings.create({
+    model: 'text-embedding-3-small',
+    input: text,
+  });
+  return response.data[0].embedding;
+}
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -28,7 +44,10 @@ async function recallHandler(req, res) {
       match_limit: limit,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
 
     // Filter out expired memories and format results
     const now = new Date();
@@ -42,15 +61,16 @@ async function recallHandler(req, res) {
         stored_at: row.created_at,
       }));
 
-    res.status(200).json({ 
+    return res.status(200).json({ 
       namespace,
       results, 
       count: results.length 
     });
   } catch (error) {
     console.error('Error recalling memories:', error);
-    res.status(500).json({ error: 'Failed to recall memories' });
+    return res.status(500).json({ 
+      error: 'Failed to recall memories',
+      details: error.message 
+    });
   }
 }
-
-export default createExpressHandler(recallHandler);
