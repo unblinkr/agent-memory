@@ -113,7 +113,7 @@ curl -X DELETE https://agent-memory.vercel.app/api/namespace/my-agent/forget \
 | Plan | Price | Includes | Payment |
 |------|-------|----------|---------|
 | **Free** | $0 | 1,000 calls/mo | Wallet-gated |
-| **Pay-as-you-go** | x402 | $0.001 read / $0.005 write | USDC on Base |
+| **Pay-as-you-go** | x402 | $0.01 read / $0.05 write | USDC on Base |
 | **Dev** | $12/mo | 50K memories | Stripe or crypto |
 | **Pro** | $49/mo | 500K memories + graph memory | Stripe or crypto |
 | **Agent** | $8/mo | 100K calls/mo flat rate | USDC only |

@@ -169,7 +169,7 @@ curl -X POST https://agent-memory.vercel.app/api/namespace/my-agent/recall \\
           }}>
             {[
               { name: 'Free', price: '$0', desc: '1,000 calls/mo', note: 'Wallet = identity', highlight: false },
-              { name: 'Pay-as-you-go', price: 'x402', desc: '$0.001 read / $0.005 write', note: 'USDC on Base', highlight: false },
+              { name: 'Pay-as-you-go', price: 'x402', desc: '$0.01 read / $0.05 write', note: 'USDC on Base', highlight: false },
               { name: 'Dev', price: '$12', desc: '50K memories/mo', note: 'Stripe or crypto', highlight: true },
               { name: 'Pro', price: '$49', desc: '500K memories + graph', note: 'Advanced features', highlight: false },
               { name: 'Agent', price: '$8', desc: '100K calls/mo flat', note: 'USDC only', highlight: false },
